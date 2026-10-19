@@ -10,16 +10,27 @@ Edit view と Rendered view の両方から、非同期描画、SVG 検査・静
 
 必要な外部依存は Mermaid CLI (`mmdc`) と、それが利用する browser です。これらのインストールは行いません。まず通常の環境で mmdc が動くよう設定してください。
 
+straight.el での導入例です。`<owner>` は実際の GitHub オーナー名に置き換えてください。既存の md-mode keymap は自動変更しないため、起動コマンドは利用者の任意のキーへ割り当てます。
+
 ```elisp
-(add-to-list 'load-path "/path/to/diagram-viewer")
-(require 'diagram-viewer-adapter-mermaid)
-(require 'diagram-viewer-adapter-md-mode)
+(use-package diagram-viewer
+  :straight (:host github :repo "<owner>/diagram-viewer")
+  :after md-mode
+  :config
+  (require 'diagram-viewer-adapter-mermaid)
+  (require 'diagram-viewer-adapter-md-mode)
+  (diagram-viewer-mermaid-enable)
+  (diagram-viewer-md-mode-enable)
 
-;; 必要な場合だけ、既存 browser の絶対パスを指定します。
-;; (setq diagram-viewer-mermaid-browser-executable "/absolute/path/to/chrome")
+  ;; キー割り当ての例。
+  (define-key md-mode-map (kbd "C-c d") #'diagram-viewer-view-at-point)
+  (define-key md-mode-map (kbd "C-c D") #'diagram-viewer-md-mode-view-rendered-at-point))
+```
 
-(diagram-viewer-mermaid-enable)
-(diagram-viewer-md-mode-enable)
+既存 browser の絶対パスを指定する必要がある場合だけ、`:config` 内で Core の変数へ設定します。
+
+```elisp
+(setq diagram-viewer-mermaid-browser-executable "/absolute/path/to/chrome")
 ```
 
 登録は一度だけ行います。設定を再評価して同じ ID を置き換える場合は、各 enable に明示的に `t` を渡してください。Core や Adapter を読み込むだけでは、外部 process の起動は行いません。
@@ -102,3 +113,7 @@ DIAGRAM_VIEWER_BROWSER=/absolute/path/to/chrome make test-ui-gui \
 GUI runner は自分の Emacs process を終了します。既存 server へ `emacsclient` で送らず、上記の独立プロセス用ターゲットを使ってください。Wayland 以外の環境では起動オプションの調整が必要です。
 
 [Makefile](<Makefile>) に実行手順を定義し、生成物は `build/` に分離しています。通常検査で外部依存・GUI が必要な項目は明示的に skip します。[固定した実 Mermaid fixture](<test/fixtures/README.md>) の SVG 検査には browser は不要です。右上配置の失敗・未検証環境・将来拡張を、現在の MVP で達成したものとして扱いません。
+
+## ライセンス
+
+MIT Licenseです。詳細は [LICENSE](<LICENSE>) を参照してください。
