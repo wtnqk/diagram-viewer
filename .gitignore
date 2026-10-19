@@ -1,0 +1,6 @@
+/build/
+*.elc
+*~
+/.serena
+/docs
+/examples
