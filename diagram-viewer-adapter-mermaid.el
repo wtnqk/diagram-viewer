@@ -1,6 +1,7 @@
 ;;; diagram-viewer-adapter-mermaid.el --- Async Mermaid renderer -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026
+;; Copyright (C) 2026 wtnqk
+;; SPDX-License-Identifier: MIT
 ;; Author: diagram-viewer contributors
 ;; Version: 0.1.0
 ;; Keywords: multimedia, tools

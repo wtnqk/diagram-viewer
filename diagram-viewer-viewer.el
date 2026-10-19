@@ -1,6 +1,7 @@
 ;;; diagram-viewer-viewer.el --- Nonfile diagram image viewer -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2026
+;; Copyright (C) 2026 wtnqk
+;; SPDX-License-Identifier: MIT
 ;; Author: diagram-viewer contributors
 
 ;;; Commentary:
