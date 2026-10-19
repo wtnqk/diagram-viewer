@@ -40,7 +40,7 @@
 (defconst diagram-viewer-svg--max-number 16384
   "Maximum absolute numeric CSS or geometry component in this subset.")
 
-(defconst diagram-viewer-svg-policy-version 1
+(defconst diagram-viewer-svg-policy-version 2
   "Version of the accepted SVG subset, independent of renderer versions.")
 (defconst diagram-viewer-svg--namespace "http://www.w3.org/2000/svg")
 (defconst diagram-viewer-svg--xmlns "http://www.w3.org/2000/xmlns/")
@@ -69,10 +69,14 @@
     "white-space" "word-break" "word-wrap" "overflow-wrap" "word-spacing"
     "letter-spacing" "dominant-baseline" "alignment-baseline" "vertical-align"
     "display" "visibility" "overflow" "cursor" "pointer-events"
-    "width" "height" "min-width" "min-height" "max-width" "max-height"
+    "width" "height" "min-width" "min-height" "max-width" "max-height" "rx" "ry"
     "margin" "margin-top" "margin-right" "margin-bottom" "margin-left"
     "padding" "padding-top" "padding-right" "padding-bottom" "padding-left"
     "border" "border-width" "border-style" "border-color" "border-radius"
+    "border-top" "border-right" "border-bottom" "border-left"
+    "border-top-width" "border-right-width" "border-bottom-width" "border-left-width"
+    "border-top-style" "border-right-style" "border-bottom-style" "border-left-style"
+    "border-top-color" "border-right-color" "border-bottom-color" "border-left-color"
     "box-sizing" "position" "top" "right" "bottom" "left" "z-index"
     "transform" "transform-origin" "transform-box" "clip-path"
     "marker-start" "marker-mid" "marker-end" "stop-color" "stop-opacity"

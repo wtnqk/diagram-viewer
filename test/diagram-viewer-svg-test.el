@@ -127,6 +127,61 @@
                   "<style>#root .label{font-family:&quot;trebuchet ms&quot;,sans-serif;font-size:16px;fill:rgb(1,2,3);;filter:drop-shadow(0px 2px 2px rgba(0,0,0,0.2));}</style><g id='root' style='fill:#fff;stroke-width:1;'/>"))))
     (should result)))
 
+(ert-deftest diagram-viewer-svg-css-border-side-properties ()
+  (dolist (side '("top" "right" "bottom" "left"))
+    (dolist (entry '(("" . "1px solid rgb(10,20,30)")
+                     ("-width" . "2px") ("-style" . "solid")
+                     ("-color" . "rgba(10,20,30,0.5)")))
+      (let* ((property (concat "border-" side (car entry)))
+             (declaration (concat property ":" (cdr entry) ";"))
+             (bytes (diagram-viewer-svg-test--validate
+                     (diagram-viewer-svg-test--wrap
+                      (format "<style>.stateGroup{%s}</style><g style='%s'/>"
+                              declaration declaration)))))
+        (should-not (multibyte-string-p bytes))
+        (should (string-match-p (regexp-quote declaration) bytes))))))
+
+(ert-deftest diagram-viewer-svg-css-state-border-bottom-without-semicolon ()
+  ;; Mermaid stateDiagram-v2 emits this rule, even for a simple state diagram.
+  (let ((bytes (diagram-viewer-svg-test--validate
+                (diagram-viewer-svg-test--wrap
+                 "<style>.stateGroup .composit{fill:#fff; border-bottom: 1px}</style><g style='BORDER-BOTTOM: 1px'/>"))))
+    (should (string-match-p "border-bottom:1px;" bytes))))
+
+(ert-deftest diagram-viewer-svg-css-border-sides-still-reject-unsafe-values ()
+  (dolist (side '("top" "right" "bottom" "left"))
+    (dolist (value '("url(https://example.invalid/a)" "URL(file:///etc/passwd)"
+                     "u\\72l(https://example.invalid/a)" "expression(alert(1))"
+                     "calc(1px * 1000000000)" "1e100px solid red"))
+      (dolist (body (list (format "<style>g{border-%s:%s}</style>" side value)
+                          (format "<g style='border-%s:%s'/>" side value)
+                          (format "<g border-%s='%s'/>" side value)))
+        (should-error (diagram-viewer-svg-test--validate (diagram-viewer-svg-test--wrap body))
+                      :type 'diagram-viewer-invalid-output)))))
+
+(ert-deftest diagram-viewer-svg-css-state-corner-radii ()
+  (let ((bytes (diagram-viewer-svg-test--validate
+                (diagram-viewer-svg-test--wrap
+                 "<style>.stateGroup rect{rx:5px;ry:5px}</style><rect width='10' height='10' style='rx:2;ry:3'/>"))))
+    (should (string-match-p "rx:5px;ry:5px;" bytes))
+    (should (string-match-p "rx:2;ry:3;" bytes))))
+
+(ert-deftest diagram-viewer-svg-css-corner-radii-still-reject-unsafe-values ()
+  (dolist (property '("rx" "ry"))
+    (dolist (value '("url(https://example.invalid/a)" "expression(alert(1))"
+                     "calc(10000px * 10000)" "1e100px"))
+      (dolist (body (list (format "<style>rect{%s:%s}</style>" property value)
+                          (format "<rect style='%s:%s'/>" property value)
+                          (format "<rect %s='%s'/>" property value)))
+        (should-error (diagram-viewer-svg-test--validate (diagram-viewer-svg-test--wrap body))
+                      :type 'diagram-viewer-invalid-output)))))
+
+(ert-deftest diagram-viewer-svg-css-border-family-is-not-a-wildcard ()
+  (dolist (property '("border-image" "border-image-source" "border-image-width"
+                      "border-unknown"))
+    (should-error (diagram-viewer-svg--css (format "g{%s:1px;}" property))
+                  :type 'diagram-viewer-invalid-output)))
+
 (ert-deftest diagram-viewer-svg-css-rejects-obfuscated-urls-and-imports ()
   (dolist (css '("g{fill:url(https://example.invalid/a);}"
                  "g{fill:URL(https://example.invalid/a);}"
@@ -214,7 +269,8 @@
 
 (ert-deftest diagram-viewer-svg-real-mermaid-fixtures ()
   (let ((directory diagram-viewer-svg-test--fixture-directory))
-    (dolist (name '("mermaid-flowchart.svg" "mermaid-sequence.svg" "mermaid-class.svg"))
+    (dolist (name '("mermaid-flowchart.svg" "mermaid-sequence.svg" "mermaid-class.svg"
+                    "mermaid-state.svg"))
       (let* ((path (expand-file-name name directory))
              (bytes (diagram-viewer-svg-validate-file path)))
         (should (> (length bytes) 100))
